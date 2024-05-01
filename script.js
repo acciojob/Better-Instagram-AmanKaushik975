@@ -1,36 +1,46 @@
-//your code here
-let dragElem = null;
-
-function addEventListeners(div) {
-    div.addEventListener("dragstart", e => {
-        console.log("dragstart event fired for div with id:", e.target.id);
-        dragElem = e.target;
-    });
-
-    div.addEventListener("dragover", e => {
-        e.preventDefault(); // This is necessary to allow dropping
-    });
-
-    div.addEventListener("drop", e => {
-        e.preventDefault(); // This is necessary to allow dropping
-
-        // Swap the divs
-        let temp = e.target.outerHTML;
-        e.target.outerHTML = dragElem.outerHTML;
-        dragElem.outerHTML = temp;
-
-        // Add event listeners to the new divs
-        addEventListeners(e.target);
-        addEventListeners(dragElem);
-
-        dragElem = null;
-    });
+let dragindex = 0;
+let dropindex = 0;
+let clone = "";
+ 
+const images = document.querySelectorAll(".image");
+ 
+function drag(e) {
+  e.dataTransfer.setData("text", e.target.id);
 }
-
-// Get all divs
-let divs = document.getElementsByClassName("image");
-
-// Add event listeners to all divs
-for(let i=0; i<divs.length; i++) {
-    addEventListeners(divs[i]);
+ 
+function allowDrop(e) {
+  e.preventDefault();
 }
+ 
+function drop(e) {
+  clone = e.target.cloneNode(true);
+  let data = e.dataTransfer.getData("text");
+  let nodelist = document.getElementById("parent").childNodes;
+  console.log(data, e.target.id);
+  for (let i = 0; i < nodelist.length; i++) {
+    if (nodelist[i].id == data) {
+      dragindex = i;
+    }
+  }
+ 
+  dragdrop(clone);
+ 
+  document
+    .getElementById("parent")
+    .replaceChild(document.getElementById(data), e.target);
+ 
+  document
+    .getElementById("parent")
+    .insertBefore(
+      clone,
+      document.getElementById("parent").childNodes[dragindex]
+    );
+}
+ 
+const dragdrop = (image) => {
+  image.ondragstart = drag;
+  image.ondragover = allowDrop;
+  image.ondrop = drop;
+};
+ 
+images.forEach(dragdrop);
